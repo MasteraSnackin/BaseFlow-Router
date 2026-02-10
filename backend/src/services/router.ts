@@ -106,7 +106,9 @@ export async function getQuote(
   // Return mock data if in mock mode
   if (isMockMode()) {
     console.log('🎭 Mock mode: Returning simulated quote data');
-    return generateMockQuote(req);
+    const mockQuote = generateMockQuote(req);
+    // Add logic to optionally return error for testing?
+    return mockQuote;
   }
 
   const enhancedProvider = getProvider();
