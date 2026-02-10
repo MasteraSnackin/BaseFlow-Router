@@ -40,20 +40,74 @@ export interface QuoteResponseData {
 // Singleton provider instance
 let providerInstance: EnhancedProvider | null = null;
 
+// Mock mode detection
+const MOCK_ROUTER_ADDRESS = '0x1234567890123456789012345678901234567890';
+const isMockMode = () => CONFIG.routerAddress === MOCK_ROUTER_ADDRESS;
+
 function getProvider(): EnhancedProvider {
   if (!CONFIG.routerAddress) {
     throw new ConfigurationError('ROUTER_ADDRESS not configured in environment');
   }
-  if (!providerInstance) {
+  if (!providerInstance && !isMockMode()) {
     providerInstance = new EnhancedProvider(CONFIG.rpcUrl);
   }
-  return providerInstance;
+  return providerInstance!;
+}
+
+// Mock quote generator for testing without deployed contracts
+function generateMockQuote(req: QuoteRequest): QuoteResponseData {
+  const { chainId, tokenIn, tokenOut, amountIn } = req;
+
+  const amountInBigInt = BigInt(amountIn);
+  // Simulate VenueA 1:1 ratio
+  const baselineAmountOut = amountInBigInt;
+  // Simulate VenueB 1:1.05 ratio (5% better)
+  const smartAmountOut = (amountInBigInt * 105n) / 100n;
+  const improvementBps = 500; // 5% = 500 basis points
+
+  const iface = new Interface(RouterAbi);
+  const mockCalldata = iface.encodeFunctionData('swapViaBestVenue', [
+    tokenIn,
+    tokenOut,
+    amountIn,
+    (smartAmountOut * 99n) / 100n // 1% slippage
+  ]);
+
+  return {
+    chainId,
+    tokenIn,
+    tokenOut,
+    amountIn,
+    baselineVenue: 'DEX_A',
+    baselineAmountOut: baselineAmountOut.toString(),
+    smartVenue: 'DEX_B',
+    smartAmountOut: smartAmountOut.toString(),
+    improvementBps,
+    coingeckoReferencePriceTokenInUSD: 1.00,
+    coingeckoReferencePriceTokenOutUSD: 1.00,
+    priceCheckStatus: 'OK',
+    routerCalldata: {
+      to: CONFIG.routerAddress,
+      data: mockCalldata,
+      value: '0'
+    }
+  };
 }
 
 export async function getQuote(
   req: QuoteRequest
 ): Promise<QuoteResponseData> {
   const { chainId, tokenIn, tokenOut, amountIn, slippageBps } = req;
+
+  console.log('DEBUG: CONFIG.routerAddress =', CONFIG.routerAddress);
+  console.log('DEBUG: MOCK_ROUTER_ADDRESS =', MOCK_ROUTER_ADDRESS);
+  console.log('DEBUG: isMockMode() =', isMockMode());
+
+  // Return mock data if in mock mode
+  if (isMockMode()) {
+    console.log('🎭 Mock mode: Returning simulated quote data');
+    return generateMockQuote(req);
+  }
 
   const enhancedProvider = getProvider();
   const provider = enhancedProvider.getProvider();

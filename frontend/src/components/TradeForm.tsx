@@ -13,13 +13,13 @@ const TOKENS: Token[] = [
   {
     label: 'Token IN',
     symbol: 'TIN',
-    address: '0xTokenInAddressOnBaseSepolia',
+    address: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
     icon: '🔵'
   },
   {
     label: 'Token OUT',
     symbol: 'TOUT',
-    address: '0xTokenOutAddressOnBaseSepolia',
+    address: '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
     icon: '🟣'
   }
 ];
