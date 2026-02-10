@@ -73,7 +73,31 @@
   }
 
   .gradient-text {
-    @apply bg-gradient-to-r from-base-400 via-aurora-purple to-aurora-pink bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-base-400 via-aurora-purple to-aurora-pink bg-clip-text text-transparent bg-[length:200%_auto] animate-text-shine;
+  }
+
+  /* 💧 LIQUID BORDER EFFECT */
+  .liquid-border {
+    @apply relative rounded-2xl overflow-hidden;
+  }
+  
+  .liquid-border::before {
+    content: "";
+    @apply absolute inset-[-2px] bg-[conic-gradient(from_90deg_at_50%_50%,#0000_50%,#0ea5e9_100%)] animate-border-spin opacity-0 transition-opacity duration-300;
+  }
+
+  .liquid-border:hover::before,
+  .liquid-border:focus-within::before {
+    @apply opacity-100;
+  }
+
+  .liquid-border::after {
+    content: "";
+    @apply absolute inset-[1px] rounded-2xl bg-slate-950/90 backdrop-blur-xl;
+  }
+
+  .liquid-content {
+    @apply relative z-10;
   }
 
   /* ✨ PHASE 1: Enhanced Primary Button with Glow */

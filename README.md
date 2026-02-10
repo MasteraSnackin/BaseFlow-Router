@@ -132,6 +132,29 @@ DeFi traders on Base lose value due to:
 7. **Confirm**: Approve transaction in MetaMask
 8. **Done**: View transaction on [BaseScan](https://sepolia.basescan.org)
 
+## 🎭 Mock Demo Mode (Zero Cost)
+
+Want to try the app without Testnet ETH? Run it in **Mock Mode**:
+
+1.  **Backend Config**:
+    Set `ROUTER_ADDRESS=0x1234567890123456789012345678901234567890` in `backend/.env`
+
+2.  **Frontend**:
+    - Connect **any** wallet (even empty ones).
+    - Get Quote -> Returns simulated "Smart Route" with 5% improvement.
+    - Execute -> Simulates transaction success (no gas needed).
+
+This is perfect for UI/UX testing and demonstrations.
+
+## 🛡️ Resilience & Reliability
+
+The application features a production-grade error handling system:
+
+- **Circuit Breaker**: Automatically fails over if RPC provider becomes unstable (5 failures -> 30s cooldown).
+- **Auto-Retry**: Exponential backoff for transient network errors.
+- **Validation**: Strict Zod schemas for all inputs.
+- **Price Safety**: Real-time cross-reference with CoinGecko to prevent bad execution prices (>5% deviation warning).
+
 ## 🎨 Demo Flow
 
 For a complete demo script, see [DEMO.md](DEMO.md)

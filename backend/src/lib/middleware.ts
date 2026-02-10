@@ -36,16 +36,39 @@ export function errorHandler(
   res: Response,
   _next: NextFunction
 ) {
-  console.error('[ERROR]', {
-    error: err.message,
-    stack: err.stack,
+  const requestId = req.headers['x-request-id'] || `req-${Date.now()}`;
+  const timestamp = new Date().toISOString();
+
+  // Log strict JSON for production observability
+  console.error(JSON.stringify({
+    level: 'ERROR',
+    timestamp,
+    requestId,
     path: req.path,
     method: req.method,
+    errorMessage: err.message,
+    stack: process.env.NODE_ENV !== 'production' ? err.stack : undefined,
     body: req.body
-  });
+  }));
 
   if (err instanceof AppError) {
-    return res.status(err.statusCode).json(err.toJSON());
+    return res.status(err.statusCode).json({
+      ...err.toJSON(),
+      requestId
+    });
+  }
+
+  // Handle SyntaxError (JSON parse error) from Express body-parser
+  if (err instanceof SyntaxError && 'status' in err && err.status === 400 && 'body' in err) {
+    return res.status(400).json({
+      success: false,
+      error: {
+        code: 'INVALID_JSON',
+        message: 'Invalid JSON payload received',
+        timestamp,
+        requestId
+      }
+    });
   }
 
   // Default internal server error
@@ -55,7 +78,9 @@ export function errorHandler(
       code: 'INTERNAL_ERROR',
       message: process.env.NODE_ENV === 'production'
         ? 'Internal server error'
-        : err.message
+        : err.message,
+      timestamp,
+      requestId
     }
   });
 }

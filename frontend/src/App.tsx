@@ -5,6 +5,8 @@ import { TradeForm } from './components/TradeForm';
 import { QuoteResult } from './components/QuoteResult';
 import { MetricsCard } from './components/MetricsCard';
 import { QuoteLoadingSkeleton } from './components/SkeletonLoader';
+import { HolographicCard } from './components/HolographicCard';
+import { triggerCelebration } from './lib/celebration';
 import { getQuote, type QuoteRequest, type QuoteResponse } from './lib/api';
 import { connectWallet, sendRouterTx } from './lib/wallet';
 
@@ -53,6 +55,7 @@ function App() {
       setError(null);
       const tx = await sendRouterTx(walletAddress, quote.routerCalldata);
       setTxHash(tx);
+      triggerCelebration(); // 🎉 Trigger confetti on success
     } catch (e: any) {
       setError(e.message || 'Transaction failed');
     }
@@ -210,70 +213,73 @@ function App() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
-            className="md:col-span-8 glass-card p-6 md:p-8"
+            className="md:col-span-8"
           >
-            <div className="flex items-center gap-2 mb-6">
-              <Sparkles className="w-5 h-5 text-aurora-purple" />
-              <h2 className="text-2xl font-bold">Trade</h2>
+            {/* 💧 LIQUID BORDER WRAPPER */}
+            <div className="liquid-border p-[1px]">
+              <div className="glass-card p-6 md:p-8 h-full bg-slate-950/80 backdrop-blur-xl rounded-2xl relative z-10">
+                <div className="flex items-center gap-2 mb-6">
+                  <Sparkles className="w-5 h-5 text-aurora-purple animate-pulse" />
+                  <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
+                    Trade
+                  </h2>
+                </div>
+
+                <TradeForm onSubmit={handleGetQuote} loading={loading} />
+
+                {/* Error Display */}
+                <AnimatePresence>
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl"
+                    >
+                      <p className="text-red-400 text-sm">
+                        <strong>Error:</strong> {error}
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Loading Skeleton */}
+                {loading && !quote && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    <QuoteLoadingSkeleton />
+                  </motion.div>
+                )}
+
+                {/* Quote Result */}
+                <QuoteResult quote={quote} txHash={txHash} />
+
+                {/* Execute Trade Button */}
+                {quote && (
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleExecute}
+                    className="btn-primary w-full mt-6 py-4 text-lg flex items-center justify-center gap-2 relative overflow-hidden group"
+                  >
+                    <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                    <TrendingUp className="w-5 h-5" />
+                    <span className="relative z-10">Execute Trade on Best Route</span>
+                  </motion.button>
+                )}
+              </div>
             </div>
-
-            <TradeForm onSubmit={handleGetQuote} loading={loading} />
-
-            {/* Error Display */}
-            <AnimatePresence>
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl"
-                >
-                  <p className="text-red-400 text-sm">
-                    <strong>Error:</strong> {error}
-                  </p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Loading Skeleton */}
-            {loading && !quote && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                <QuoteLoadingSkeleton />
-              </motion.div>
-            )}
-
-            {/* Quote Result */}
-            <QuoteResult quote={quote} txHash={txHash} />
-
-            {/* Execute Trade Button */}
-            {quote && (
-              <motion.button
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={handleExecute}
-                className="btn-primary w-full mt-6 py-4 text-lg flex items-center justify-center gap-2"
-              >
-                <TrendingUp className="w-5 h-5" />
-                Execute Trade on Best Route
-              </motion.button>
-            )}
           </motion.div>
 
           {/* Stats & Info Sidebar - Spans 4 columns */}
           <div className="md:col-span-4 space-y-6">
             {/* How It Works Card */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-              className="glass-card p-6"
-            >
+            <HolographicCard className="glass-card p-6">
               <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                 <Zap className="w-5 h-5 text-base-400" />
                 How It Works
@@ -299,15 +305,10 @@ function App() {
                   </motion.li>
                 ))}
               </ol>
-            </motion.div>
+            </HolographicCard>
 
             {/* Stats Card with Animated Metrics */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
-              className="glass-card p-6"
-            >
+            <HolographicCard className="glass-card p-6" glowColor="rgba(139, 92, 246, 0.15)">
               <h3 className="text-lg font-bold mb-4">Platform Stats</h3>
               <div className="space-y-4">
                 <MetricsCard
@@ -333,15 +334,10 @@ function App() {
                   delay={0.6}
                 />
               </div>
-            </motion.div>
+            </HolographicCard>
 
             {/* Network Info */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 }}
-              className="glass-card p-6"
-            >
+            <HolographicCard className="glass-card p-6" glowColor="rgba(16, 185, 129, 0.15)">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse" />
                 <span className="text-sm font-semibold">Base Sepolia</span>
@@ -349,7 +345,7 @@ function App() {
               <p className="text-xs text-slate-400">
                 Testnet • Chain ID: 84532
               </p>
-            </motion.div>
+            </HolographicCard>
           </div>
         </div>
 
@@ -360,7 +356,7 @@ function App() {
           transition={{ delay: 0.5 }}
           className="mt-12 text-center text-sm text-slate-500"
         >
-          <p>Built with ❤️ on Base • Powered by Claude Sonnet 4.5</p>
+          <p>Built with ❤️ on Base • Powered by Gemini</p>
         </motion.footer>
       </div>
     </div>

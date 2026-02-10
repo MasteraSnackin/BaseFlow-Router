@@ -1,58 +1,70 @@
 import { JsonRpcProvider, type TransactionRequest } from 'ethers';
-import { withRetry, withTimeout, isRetryableError, RPCError } from './errors.js';
+import { withRetry, withTimeout, isRetryableError, RPCError, CircuitBreaker } from './errors.js';
 
 /**
- * Enhanced RPC provider with retry logic and timeouts
+ * Enhanced RPC provider with retry logic, timeouts, and circuit breaker
  */
 export class EnhancedProvider {
   private provider: JsonRpcProvider;
   private rpcUrl: string;
+  private circuitBreaker: CircuitBreaker;
 
   constructor(rpcUrl: string) {
     this.rpcUrl = rpcUrl;
     this.provider = new JsonRpcProvider(rpcUrl);
+    this.circuitBreaker = new CircuitBreaker({
+      failureThreshold: 5,
+      resetTimeout: 30000,
+      successThreshold: 2
+    });
   }
 
   /**
-   * Get block number with retry and timeout
+   * Get block number with retry, timeout, and circuit breaker
    */
   async getBlockNumber(): Promise<number> {
-    return withRetry(
-      () => withTimeout(
-        this.provider.getBlockNumber(),
-        5000,
-        'RPC timeout: getBlockNumber'
-      ),
-      {
-        maxRetries: 3,
-        shouldRetry: isRetryableError
-      }
-    ).catch((error) => {
+    return this.circuitBreaker.call(async () => {
+      return withRetry(
+        () => withTimeout(
+          this.provider.getBlockNumber(),
+          5000,
+          'RPC timeout: getBlockNumber'
+        ),
+        {
+          maxRetries: 3,
+          shouldRetry: isRetryableError
+        }
+      );
+    }).catch((error) => {
       throw new RPCError(`Failed to get block number: ${error.message}`, {
-        rpcUrl: this.rpcUrl
+        rpcUrl: this.rpcUrl,
+        originalError: error
       });
     });
   }
 
   /**
-   * Call contract method with retry and timeout
+   * Call contract method with retry, timeout, and circuit breaker
    */
   async call(tx: TransactionRequest): Promise<string> {
-    return withRetry(
-      () => withTimeout(
-        this.provider.call(tx),
-        5000,
-        'RPC timeout: contract call'
-      ),
-      {
-        maxRetries: 3,
-        shouldRetry: isRetryableError
-      }
-    ).catch((error) => {
+    return this.circuitBreaker.call(async () => {
+      return withRetry(
+        () => withTimeout(
+          this.provider.call(tx),
+          5000,
+          'RPC timeout: contract call'
+        ),
+        {
+          maxRetries: 3,
+          shouldRetry: isRetryableError
+        }
+      );
+    }).catch((error) => {
       throw new RPCError(`Contract call failed: ${error.message}`, {
         rpcUrl: this.rpcUrl,
         to: tx.to,
-        data: tx.data
+        data: tx.data,
+        originalError: error
       });
     });
   }

@@ -3,6 +3,8 @@
  */
 
 export class AppError extends Error {
+  public readonly timestamp: string;
+
   constructor(
     public code: string,
     message: string,
@@ -11,6 +13,9 @@ export class AppError extends Error {
   ) {
     super(message);
     this.name = 'AppError';
+    this.timestamp = new Date().toISOString();
+    // Maintain prototype chain
+    Object.setPrototypeOf(this, new.target.prototype);
   }
 
   toJSON() {
@@ -19,7 +24,9 @@ export class AppError extends Error {
       error: {
         code: this.code,
         message: this.message,
-        ...(this.details && { details: this.details })
+        details: this.details,
+        timestamp: this.timestamp,
+        ...(process.env.NODE_ENV !== 'production' && { stack: this.stack })
       }
     };
   }
@@ -143,4 +150,84 @@ export function isRetryableError(error: any): boolean {
   }
 
   return false;
+}
+
+export enum CircuitState {
+  CLOSED = 'CLOSED',     // Normal operation
+  OPEN = 'OPEN',         // Failing, reject requests
+  HALF_OPEN = 'HALF_OPEN' // Testing if recovered
+}
+
+export class CircuitBreaker {
+  private state: CircuitState = CircuitState.CLOSED;
+  private failureCount = 0;
+  private successCount = 0;
+  private lastFailureTime = 0;
+  private resetTimeout: number;
+  private failureThreshold: number;
+  private successThreshold: number;
+
+  constructor(
+    options: {
+      failureThreshold?: number;
+      resetTimeout?: number;
+      successThreshold?: number;
+    } = {}
+  ) {
+    this.failureThreshold = options.failureThreshold || 5;
+    this.resetTimeout = options.resetTimeout || 60000;
+    this.successThreshold = options.successThreshold || 2;
+  }
+
+  public async call<T>(fn: () => Promise<T>): Promise<T> {
+    if (this.state === CircuitState.OPEN) {
+      if (Date.now() - this.lastFailureTime > this.resetTimeout) {
+        this.transitionTo(CircuitState.HALF_OPEN);
+      } else {
+        throw new AppError('CIRCUIT_OPEN', 'Circuit breaker is OPEN', 503);
+      }
+    }
+
+    try {
+      const result = await fn();
+      this.onSuccess();
+      return result;
+    } catch (error) {
+      this.onFailure();
+      throw error;
+    }
+  }
+
+  private onSuccess() {
+    this.failureCount = 0;
+    if (this.state === CircuitState.HALF_OPEN) {
+      this.successCount++;
+      if (this.successCount >= this.successThreshold) {
+        this.transitionTo(CircuitState.CLOSED);
+      }
+    }
+  }
+
+  private onFailure() {
+    this.failureCount++;
+    this.lastFailureTime = Date.now();
+    if (this.failureCount >= this.failureThreshold) {
+      this.transitionTo(CircuitState.OPEN);
+    }
+  }
+
+  private transitionTo(newState: CircuitState) {
+    this.state = newState;
+    const timestamp = new Date().toISOString();
+    if (newState === CircuitState.OPEN) {
+      console.warn(`[${timestamp}] [CircuitBreaker] State changed to OPEN. All requests blocked for ${this.resetTimeout}ms`);
+    } else if (newState === CircuitState.HALF_OPEN) {
+      console.log(`[${timestamp}] [CircuitBreaker] State changed to HALF_OPEN. Testing availability...`);
+      this.successCount = 0;
+    } else {
+      console.log(`[${timestamp}] [CircuitBreaker] State changed to CLOSED. Normal operation resumed.`);
+      this.failureCount = 0;
+      this.successCount = 0;
+    }
+  }
 }
