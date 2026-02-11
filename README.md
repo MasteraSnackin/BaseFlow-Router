@@ -1,4 +1,4 @@
-# Base DeFi Router
+# BaseFlow-Router
 
 > Smart DEX aggregator that automatically finds the best swap routes on Base network.
 
@@ -7,7 +7,7 @@
 
 ## Description
 
-**Base DeFi Router** is a smart liquidity aggregator built specifically for the Base ecosystem. It solves the problem of fragmented liquidity by automatically scanning multiple venues—including standard AMMs and the **RobinPump.fun** bonding curve—to find and execute the most profitable trade route for any token pair. Designed for traders who want to maximize returns without manually comparing prices across platforms, it offers superior execution for both established assets and early-stage bonding curve tokens.
+**BaseFlow-Router** is a smart liquidity aggregator built specifically for the Base ecosystem. It solves the problem of fragmented liquidity by automatically scanning multiple venues—including standard AMMs and the **RobinPump.fun** bonding curve—to find and execute the most profitable trade route for any token pair. Designed for traders who want to maximize returns without manually comparing prices across platforms, it offers superior execution for both established assets and early-stage bonding curve tokens.
 
 ## Table of Contents
 
