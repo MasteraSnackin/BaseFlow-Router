@@ -37,3 +37,25 @@ This project requires the unique composability and speed of the **Base L2** bloc
 *   **Composable Legos:** The ability for our `Router` contract to call other independent contracts (`VenueA`, `PumpFun`) within the same transaction block is unique to EVM blockchains. This allows us to build complex financial products on top of existing protocols without permission.
 *   **Low Latency & Fees:** Base's low gas fees make it economically viable to run complex routing logic for small-value trades (e.g., $10-$50 swaps), which would be prohibitively expensive on Ethereum Mainnet.
 *   **Trustless Execution:** Because the code is immutable and verified on-chain, users don't need to trust our backend. The smart contract guarantees that their funds can *only* be used for the swap they approved, eliminating counterparty risk.
+
+
+The name “BaseFlow Router” is doing three things at once:
+
+“Base”
+
+Explicitly anchors the project to the Base L2 network from Coinbase, an EVM-compatible rollup designed for cheap, fast dApps.
+
+Signals to judges and users that routing logic and deployments are native to Base (not a generic cross-chain tool).
+
+“Flow”
+
+Refers to order flow / liquidity flow in DeFi: your app manages how trade flow moves between venues so that it goes where execution is best, instead of being stuck on a single DEX.
+
+Suggests continuous movement and optimisation, which fits a router that constantly chooses the better path for swaps.
+
+“Router”
+
+Describes the main contract’s responsibility accurately: it is a routing contract that queries multiple venues and then routes the swap through the one with the best expected output, rather than holding its own liquidity.
+
+So, the name is meant to read as: a router that optimises flow of trades and liquidity on Base, with the emphasis on both the chain (Base) and the behaviour (routing order flow efficiently).
+
