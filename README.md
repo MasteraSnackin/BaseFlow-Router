@@ -52,7 +52,7 @@ flowchart LR
     Router -->|Checks Price| VenueB[Venue B (DEX)]
     Router -->|Checks Curve| Pump[RobinPump.fun]
     Frontend -->|Executes Swap| Router
-'''
+'''end
 
 The system consists of a React Frontend for user interaction, a Node.js Backend that aggregates quotes and validates prices against CoinGecko, and a set of Smart Contracts on Base Sepolia. The Router contract is the core on-chain component, responsible for querying connected venues (VenueA, VenueB, RobinPump.fun) and executing the trade through the most profitable path.
 
