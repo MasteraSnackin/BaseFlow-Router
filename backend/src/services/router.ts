@@ -5,7 +5,7 @@ import { EnhancedProvider } from '../lib/provider.js';
 import { ContractError, ConfigurationError } from '../lib/errors.js';
 import RouterAbi from '../abi/Router.json' with { type: 'json' };
 
-export type Venue = 'DEX_A' | 'DEX_B';
+export type Venue = 'DEX_A' | 'DEX_B' | 'ROBINPUMP_FUN';
 
 export interface QuoteRequest {
   chainId: number;
@@ -19,6 +19,13 @@ export interface RouterCalldata {
   to: string;
   data: string;
   value: string;
+}
+
+export interface PumpFunInfo {
+  bondingProgress: number; // 0-100%
+  currentPrice: string;
+  hasGraduated: boolean;
+  estimatedMarketCap: string;
 }
 
 export interface QuoteResponseData {
@@ -35,6 +42,7 @@ export interface QuoteResponseData {
   coingeckoReferencePriceTokenOutUSD: number;
   priceCheckStatus: 'OK' | 'DEVIATION_HIGH';
   routerCalldata: RouterCalldata;
+  pumpFunInfo?: PumpFunInfo; // Optional: only present if RobinPump.fun is one of the venues
 }
 
 // Singleton provider instance
@@ -59,19 +67,38 @@ function generateMockQuote(req: QuoteRequest): QuoteResponseData {
   const { chainId, tokenIn, tokenOut, amountIn } = req;
 
   const amountInBigInt = BigInt(amountIn);
-  // Simulate VenueA 1:1 ratio
-  const baselineAmountOut = amountInBigInt;
-  // Simulate VenueB 1:1.05 ratio (5% better)
-  const smartAmountOut = (amountInBigInt * 105n) / 100n;
-  const improvementBps = 500; // 5% = 500 basis points
+
+  // Simulate three venues:
+  // VenueA (DEX_A): 1:1 ratio - baseline
+  const venueAAmountOut = amountInBigInt;
+
+  // VenueB (DEX_B): 1:1.05 ratio (5% better)
+  const venueBAmountOut = (amountInBigInt * 105n) / 100n;
+
+  // RobinPump.fun: 1:1.08 ratio (8% better due to bonding curve efficiency)
+  // This shows pump.fun can often have better pricing than traditional DEXes
+  const pumpFunAmountOut = (amountInBigInt * 108n) / 100n;
+
+  // Best venue is RobinPump.fun
+  const smartAmountOut = pumpFunAmountOut;
+  const baselineAmountOut = venueAAmountOut;
+  const improvementBps = Number(((smartAmountOut - baselineAmountOut) * 10000n) / baselineAmountOut);
 
   const iface = new Interface(RouterAbi);
-  const mockCalldata = iface.encodeFunctionData('swapViaBestVenue', [
+  const mockCalldata = iface.encodeFunctionData('swapBestRoute', [
     tokenIn,
     tokenOut,
     amountIn,
     (smartAmountOut * 99n) / 100n // 1% slippage
   ]);
+
+  // Mock pump.fun bonding curve info
+  const pumpFunInfo: PumpFunInfo = {
+    bondingProgress: 45, // 45% towards graduation
+    currentPrice: '0.00003', // 0.00003 ETH per token
+    hasGraduated: false,
+    estimatedMarketCap: '30000' // $30k market cap
+  };
 
   return {
     chainId,
@@ -80,7 +107,7 @@ function generateMockQuote(req: QuoteRequest): QuoteResponseData {
     amountIn,
     baselineVenue: 'DEX_A',
     baselineAmountOut: baselineAmountOut.toString(),
-    smartVenue: 'DEX_B',
+    smartVenue: 'ROBINPUMP_FUN',
     smartAmountOut: smartAmountOut.toString(),
     improvementBps,
     coingeckoReferencePriceTokenInUSD: 1.00,
@@ -90,7 +117,8 @@ function generateMockQuote(req: QuoteRequest): QuoteResponseData {
       to: CONFIG.routerAddress,
       data: mockCalldata,
       value: '0'
-    }
+    },
+    pumpFunInfo
   };
 }
 

@@ -1,6 +1,8 @@
 import 'dotenv/config';
 import express, { type Request, type Response } from 'express';
 import quoteRouter from './routes/quote.js';
+import metadataRouter from './routes/metadata.js';
+import statsRouter from './routes/stats.js';
 import { CONFIG } from './config/env.js';
 import { errorHandler } from './lib/middleware.js';
 
@@ -30,8 +32,10 @@ app.get('/health', (_req: Request, res: Response) => {
   });
 });
 
-// Quote endpoint
+// API Routes
 app.use('/quote', quoteRouter);
+app.use('/', metadataRouter); // /venues, /tokens
+app.use('/stats', statsRouter);
 
 // Global error handler (must be last)
 app.use(errorHandler);

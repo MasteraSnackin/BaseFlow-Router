@@ -1,263 +1,192 @@
-# ⚡ Base DeFi Router
+# Base DeFi Router
+> **Smart DEX aggregator that automatically finds the best swap routes on Base network.**
 
-> **Smart DEX aggregator that automatically finds the best swap routes on Base network**
+[![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
+[![Base](https://img.shields.io/badge/Network-Base-blue)](https://base.org)
 
-Maximize your trade value by comparing multiple DEX venues in real-time and executing swaps through the optimal route – all with one click.
+## Description
 
----
+**Base DeFi Router** is a smart liquidity aggregator built specifically for the Base ecosystem. It solves the problem of fragmented liquidity by automatically scanning multiple venues—including standard AMMs and the **RobinPump.fun** bonding curve—to find and execute the most profitable trade route for any token pair. Designed for traders who want to maximize returns without manually comparing prices across platforms, it offers superior execution for both established assets and early-stage bonding curve tokens.
 
-## 🎯 The Problem
+## Table of Contents
 
-DeFi traders on Base lose value due to:
-- **Fragmented liquidity** across multiple DEXs
-- **Manual price comparison** is time-consuming
-- **No visibility** into which venue offers the best rate
-- **Missed opportunities** for better execution
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Architecture Overview](#architecture-overview)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Configuration](#configuration)
+- [API Reference](#api-reference)
+- [Tests](#tests)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
 
-## 💡 Our Solution
+## Features
 
-**Base DeFi Router** is a smart aggregator that:
-1. Queries multiple DEX venues simultaneously
-2. Compares quotes in real-time
-3. Automatically selects the best route
-4. Executes swaps with one click
-5. Shows you exactly how much you saved
+- **Smart Routing**: Automatically routes trades to the venue with the best price (Standard DEX vs Bonding Curve).
+- **Bonding Curve Integration**: Exclusive support for **RobinPump.fun** for superior early-token pricing.
+- **Real-time Aggregation**: Queries multiple venues in parallel for instant quotes.
+- **Safety First**: Built-in specialized slippage protection and CoinGecko price validation.
+- **Mock Mode**: Fully functional zero-cost simulation mode for UI/UX testing and demos.
+- **One-Click Execution**: Seamlessly execute the optimal trade directly from the interface.
 
-## 🏗️ Architecture
+## Tech Stack
 
-```
-┌─────────────┐
-│   Frontend  │  React + MetaMask
-│   (Vite)    │  User interface
-└──────┬──────┘
-       │
-       ↓ HTTP
-┌─────────────┐
-│   Backend   │  Node.js + Express
-│   (API)     │  Quote aggregation
-└──────┬──────┘
-       │
-       ↓ RPC
-┌─────────────┐
-│   Router    │  Solidity smart contract
-│  Contract   │  On Base Sepolia
-└──────┬──────┘
-       │
-   ┌───┴───┐
-   ↓       ↓
-┌──────┐ ┌──────┐
-│Venue │ │Venue │  DEX integrations
-│  A   │ │  B   │  (stubs for demo)
-└──────┘ └──────┘
-```
+- **Frontend**: React, TypeScript, Vite, TailwindCSS
+- **Backend**: Node.js, Express, Ethers.js
+- **Blockchain**: Solidity, Hardhat, Base Sepolia
+- **Services**: CoinGecko API for price validation
 
-### Smart Contract Layer
-- **Router.sol**: Compares venues and executes optimal swaps
-- **VenueA/B Stubs**: Simulated DEX interfaces for testing
-- **TokenMock**: ERC20 test tokens
+## Architecture Overview
 
-### Backend API
-- **Quote Service**: Aggregates on-chain quotes
-- **CoinGecko Integration**: Price validation
-- **Calldata Generation**: Ready-to-execute transactions
-
-### Frontend
-- **React UI**: Clean, simple interface
-- **MetaMask**: Wallet integration
-- **Real-time Quotes**: See improvements instantly
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Node.js 18+
-- MetaMask wallet
-- Base Sepolia testnet ETH ([get from faucet](https://www.coinbase.com/faucets/base-ethereum-sepolia-faucet))
-
-### Setup
-
-1. **Clone and install**:
-   ```bash
-   cd base-defi-router
-   npm install
-   cd backend && npm install
-   cd ../frontend && npm install
-   cd ..
-   ```
-
-2. **Configure environment** (`.env`):
-   ```bash
-   # Base Sepolia RPC
-   BASE_SEPOLIA_RPC_URL=https://sepolia.base.org
-
-   # Your wallet private key (for deployment)
-   PRIVATE_KEY=your_private_key_here
-
-   # Contract addresses (fill after deployment)
-   ROUTER_ADDRESS=
-
-   # Backend port
-   PORT=4000
-   ```
-
-3. **Deploy contracts**:
-   ```bash
-   npx hardhat compile
-   npx hardhat run scripts/deploy.js --network baseSepolia
-   ```
-
-   Copy the deployed addresses to `.env`
-
-4. **Start backend** (Terminal 1):
-   ```bash
-   cd backend
-   npm run dev
-   ```
-
-5. **Start frontend** (Terminal 2):
-   ```bash
-   cd frontend
-   npm run dev
-   ```
-
-6. **Open app**: Navigate to `http://localhost:5173`
-
-## 📱 How to Use
-
-1. **Connect Wallet**: Click "Connect Wallet" and approve in MetaMask
-2. **Select Tokens**: Choose Token IN and Token OUT from dropdowns
-3. **Enter Amount**: Input the amount you want to swap
-4. **Get Quote**: Click to fetch quotes from all venues
-5. **Review**: See baseline vs smart route comparison
-6. **Execute**: Click "Execute Trade" to swap through best route
-7. **Confirm**: Approve transaction in MetaMask
-8. **Done**: View transaction on [BaseScan](https://sepolia.basescan.org)
-
-## 🎭 Mock Demo Mode (Zero Cost)
-
-Want to try the app without Testnet ETH? Run it in **Mock Mode**:
-
-1.  **Backend Config**:
-    Set `ROUTER_ADDRESS=0x1234567890123456789012345678901234567890` in `backend/.env`
-
-2.  **Frontend**:
-    - Connect **any** wallet (even empty ones).
-    - Get Quote -> Returns simulated "Smart Route" with 5% improvement.
-    - Execute -> Simulates transaction success (no gas needed).
-
-This is perfect for UI/UX testing and demonstrations.
-
-## 🛡️ Resilience & Reliability
-
-The application features a production-grade error handling system:
-
-- **Circuit Breaker**: Automatically fails over if RPC provider becomes unstable (5 failures -> 30s cooldown).
-- **Auto-Retry**: Exponential backoff for transient network errors.
-- **Validation**: Strict Zod schemas for all inputs.
-- **Price Safety**: Real-time cross-reference with CoinGecko to prevent bad execution prices (>5% deviation warning).
-
-## 🎨 Demo Flow
-
-For a complete demo script, see [DEMO.md](DEMO.md)
-
-## 📊 Key Features
-
-- ✅ **Automatic Best Route**: No manual comparison needed
-- ✅ **Real-time Quotes**: Always current prices
-- ✅ **Transparent Improvement**: See exact savings in bps
-- ✅ **One-Click Execution**: Swap through best venue instantly
-- ✅ **Price Validation**: CoinGecko reference prices
-- ✅ **Slippage Protection**: Built-in (1% default)
-
-## 🧪 Technology Stack
-
-### Smart Contracts
-- Solidity 0.8.24
-- Hardhat
-- OpenZeppelin patterns
-
-### Backend
-- Node.js + Express
-- TypeScript
-- Ethers.js v6
-- CoinGecko API
-
-### Frontend
-- React 19
-- TypeScript
-- Vite
-- MetaMask (Web3)
-
-### Network
-- Base Sepolia (testnet)
-- Production-ready for Base Mainnet
-
-## 📈 Future Roadmap
-
-### Phase 1: More DEXs
-- Integrate real Base DEXs (Uniswap V3, Aerodrome, BaseSwap)
-- Multi-hop routing for better prices
-
-### Phase 2: Advanced Features
-- MEV protection via private RPCs
-- Limit orders
-- Gas optimization
-
-### Phase 3: AI Agent Integration
-- Autonomous trading strategies
-- Portfolio rebalancing
-- Yield optimization
-
-### Phase 4: Cross-Chain
-- Bridge aggregation
-- Multi-chain routing
-
-## 🔒 Security Notes
-
-- All contracts use standard ERC20 interfaces
-- Slippage protection on all swaps
-- No custody of user funds
-- Open source and auditable
-
-## 📄 Project Structure
-
-```
-base-defi-router/
-├── contracts/          # Solidity smart contracts
-│   ├── Router.sol      # Main routing logic
-│   ├── VenueAStub.sol  # DEX stub A
-│   ├── VenueBStub.sol  # DEX stub B
-│   ├── TokenMock.sol   # Test ERC20
-│   └── IERC20.sol      # Interface
-├── backend/            # Node.js API
-│   └── src/
-│       ├── config/     # Environment config
-│       ├── services/   # Quote & CoinGecko services
-│       ├── routes/     # Express routes
-│       └── abi/        # Contract ABIs
-├── frontend/           # React UI
-│   └── src/
-│       ├── components/ # React components
-│       ├── lib/        # API & wallet helpers
-│       └── App.tsx     # Main app
-├── scripts/            # Deployment scripts
-├── docs/              # Documentation
-└── .env               # Configuration
+```mermaid
+flowchart LR
+    User[User] -->|Connects Wallet| Frontend[React App]
+    Frontend -->|Requests Quote| API[Backend API]
+    API -->|Validates Price| CoinGecko[CoinGecko Service]
+    API -->|Queries On-Chain| Router[Router Contract]
+    Router -->|Checks Price| VenueA[Venue A (DEX)]
+    Router -->|Checks Price| VenueB[Venue B (DEX)]
+    Router -->|Checks Curve| Pump[RobinPump.fun]
+    Frontend -->|Executes Swap| Router
 ```
 
-## 🤝 Contributing
+The system consists of a **React Frontend** for user interaction, a **Node.js Backend** that aggregates quotes and validates prices against CoinGecko, and a set of **Smart Contracts** on Base Sepolia. The `Router` contract is the core on-chain component, responsible for querying connected venues (`VenueA`, `VenueB`, `RobinPump.fun`) and executing the trade through the most profitable path.
 
-This is a hackathon project. Contributions welcome!
+## Installation
 
-## 📜 License
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/MasteraSnackin/BaseFlow-Router.git
+    cd BaseFlow-Router
+    ```
 
-ISC
+2.  **Install dependencies:**
+    ```bash
+    # Root dependencies
+    npm install
 
-## 🙏 Acknowledgments
+    # Backend dependencies
+    cd backend
+    npm install
 
-- Built for Base hackathon
-- Powered by Claude Sonnet 4.5
-- CoinGecko API for price data
+    # Frontend dependencies
+    cd ../frontend
+    npm install
+    cd ..
+    ```
 
----
+3.  **Compile Smart Contracts:**
+    ```bash
+    npx hardhat compile
+    ```
 
-**Built with ❤️ on Base**
+## Usage
+
+You can run the full stack locally using the provided convenience scripts.
+
+1.  **Start the Backend API:**
+    ```bash
+    npm run backend
+    # Runs on http://localhost:4000
+    ```
+
+2.  **Start the Frontend:**
+    ```bash
+    npm run frontend
+    # Runs on http://localhost:5173
+    ```
+
+3.  **Deploy Contracts (Optional for Mock Mode):**
+    If you want to run against a real testnet, deploy the contracts first:
+    ```bash
+    npx hardhat run scripts/deploy.js --network baseSepolia
+    ```
+
+## Configuration
+
+The project uses `.env` files for configuration.
+
+**Backend (`backend/.env`):**
+```env
+PORT=4000
+BASE_SEPOLIA_RPC_URL=https://sepolia.base.org
+# Router contract address (use mock address for simulation)
+ROUTER_ADDRESS=0x1234567890123456789012345678901234567890
+```
+
+**Root (`.env`) for deployment:**
+```env
+BASE_SEPOLIA_RPC_URL=https://sepolia.base.org
+PRIVATE_KEY=your_private_key_here
+```
+
+## API Reference
+
+The backend exposes a simple REST API for quoting.
+
+**Get Quote**
+```http
+POST /quote
+```
+
+**Request Body:**
+```json
+{
+  "chainId": 84532,
+  "tokenIn": "0x...",
+  "tokenOut": "0x...",
+  "amountIn": "1000000000000000000",
+  "slippageBps": 50
+}
+```
+
+**Response:**
+```json
+{
+  "smartVenue": "ROBINPUMP_FUN",
+  "smartAmountOut": "1050000000000000000",
+  "improvementBps": 500,
+  "pumpFunInfo": {
+    "bondingProgress": 45,
+    "currentPrice": "0.00003"
+  }
+}
+```
+
+## Tests
+
+Run the smart contract test suite using Hardhat:
+
+```bash
+npx hardhat test
+```
+
+## Roadmap
+
+- [ ] Integrate additional Base DEXs (Aerodrome, SushiSwap).
+- [ ] Add support for multi-hop routing paths.
+- [ ] Implement MEV protection for executed trades.
+- [ ] Add portfolio tracking dashboard for user positions.
+
+## Contributing
+
+Contributions are welcome!
+
+1.  Fork the repository.
+2.  Create a feature branch (`git checkout -b feature/amazing-feature`).
+3.  Commit your changes (`git commit -m 'Add some amazing feature'`).
+4.  Push to the branch (`git push origin feature/amazing-feature`).
+5.  Open a Pull Request.
+
+## License
+
+Distributed under the ISC License. See `LICENSE` for more information.
+
+## Contact
+
+**Maintainer**: Your Name
+**Email**: contact@example.com
+**Project Link**: [https://github.com/MasteraSnackin/BaseFlow-Router](https://github.com/MasteraSnackin/BaseFlow-Router)

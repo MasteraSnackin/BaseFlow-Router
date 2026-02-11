@@ -153,6 +153,80 @@ export const QuoteResult: React.FC<Props> = ({ quote, txHash }) => {
           </motion.div>
         </div>
 
+        {/* RobinPump.fun Bonding Curve Info */}
+        {quote.pumpFunInfo && quote.smartVenue === 'ROBINPUMP_FUN' && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="glass-card p-6 border-2 border-pink-500/30 bg-gradient-to-br from-pink-500/5 to-purple-500/5"
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center">
+                <Sparkles className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold">🚀 RobinPump.fun</h3>
+                <p className="text-xs text-slate-400">Bonding Curve Trading</p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {/* Bonding Progress */}
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-slate-400">Bonding Progress</span>
+                  <span className="font-semibold text-pink-400">{quote.pumpFunInfo.bondingProgress}%</span>
+                </div>
+                <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                  <motion.div
+                    className="h-full bg-gradient-to-r from-pink-500 to-purple-500"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${quote.pumpFunInfo.bondingProgress}%` }}
+                    transition={{ duration: 1, ease: "easeOut" }}
+                  />
+                </div>
+                <p className="text-xs text-slate-500 mt-1">
+                  {quote.pumpFunInfo.hasGraduated
+                    ? '✅ Graduated to DEX'
+                    : `${100 - quote.pumpFunInfo.bondingProgress}% until DEX graduation`
+                  }
+                </p>
+              </div>
+
+              {/* Price & Market Cap */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="glass-card p-3">
+                  <div className="text-xs text-slate-400 mb-1">Current Price</div>
+                  <div className="text-sm font-bold text-pink-400">
+                    {quote.pumpFunInfo.currentPrice} ETH
+                  </div>
+                </div>
+                <div className="glass-card p-3">
+                  <div className="text-xs text-slate-400 mb-1">Market Cap</div>
+                  <div className="text-sm font-bold text-purple-400">
+                    ${Number(quote.pumpFunInfo.estimatedMarketCap).toLocaleString()}
+                  </div>
+                </div>
+              </div>
+
+              {/* Why RobinPump.fun is Better */}
+              <div className="bg-pink-500/10 border border-pink-500/20 rounded-lg p-3">
+                <div className="flex items-start gap-2">
+                  <Sparkles className="w-4 h-4 text-pink-400 mt-0.5 flex-shrink-0" />
+                  <div className="text-xs text-slate-300">
+                    <strong className="text-pink-400">Why RobinPump.fun?</strong>
+                    <p className="mt-1">
+                      Bonding curve provides better pricing than traditional DEXes at this stage.
+                      Lower fees and direct liquidity means more tokens for your trade!
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* CoinGecko Price Reference */}
         <motion.div
           initial={{ opacity: 0 }}

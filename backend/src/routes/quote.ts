@@ -1,42 +1,11 @@
-import { Router as ExpressRouter, type Request, type Response } from 'express';
-import { getQuote } from '../services/router.js';
+
+import { Router as ExpressRouter, type Request } from 'express';
+import { getQuote, type QuoteRequest } from '../services/router.js';
 import { validateRequest, asyncHandler } from '../lib/middleware.js';
 import { quoteRequestSchema, type ValidatedQuoteRequest } from '../lib/validation.js';
-import { CONFIG } from '../config/env.js';
+import { statsService } from '../services/stats.js';
 
 const router = ExpressRouter();
-
-// Mock mode detection
-const MOCK_ROUTER_ADDRESS = '0x1234567890123456789012345678901234567890';
-const isMockMode = () => CONFIG.routerAddress === MOCK_ROUTER_ADDRESS;
-
-// Mock quote generator
-function generateMockQuote(req: ValidatedQuoteRequest) {
-  const { chainId, tokenIn, tokenOut, amountIn } = req;
-  const amountInBigInt = BigInt(amountIn);
-  const baselineAmountOut = amountInBigInt;
-  const smartAmountOut = (amountInBigInt * 105n) / 100n;
-
-  return {
-    chainId,
-    tokenIn,
-    tokenOut,
-    amountIn,
-    baselineVenue: 'DEX_A' as const,
-    baselineAmountOut: baselineAmountOut.toString(),
-    smartVenue: 'DEX_B' as const,
-    smartAmountOut: smartAmountOut.toString(),
-    improvementBps: 500,
-    coingeckoReferencePriceTokenInUSD: 1.00,
-    coingeckoReferencePriceTokenOutUSD: 1.00,
-    priceCheckStatus: 'OK' as const,
-    routerCalldata: {
-      to: CONFIG.routerAddress,
-      data: '0x',
-      value: '0'
-    }
-  };
-}
 
 /**
  * POST /quote
@@ -45,20 +14,29 @@ function generateMockQuote(req: ValidatedQuoteRequest) {
 router.post(
   '/',
   validateRequest(quoteRequestSchema),
-  asyncHandler(async (req: Request, res: Response) => {
-    console.log('=== ROUTE HANDLER REACHED ===');
-    console.log('CONFIG.routerAddress:', CONFIG.routerAddress);
-    console.log('isMockMode():', isMockMode());
+  asyncHandler(async (req: Request, res) => {
+    // 1. Track Request
+    statsService.incrementTotalRequests();
 
-    const validatedBody = req.body as ValidatedQuoteRequest;
+    try {
+      const validatedBody = req.body as ValidatedQuoteRequest;
 
-    // ALWAYS return mock data for now
-    console.log('🎭 Returning mock data');
-    const mockResult = generateMockQuote(validatedBody);
-    return res.json({ success: true, data: mockResult });
+      // 2. Get Quote (Service handles Mock Mode logic internally)
+      const quote = await getQuote(validatedBody);
 
-    // const result = await getQuote(validatedBody);
-    // return res.json({ success: true, data: result });
+      // 3. Track Success & Volume
+      // converting string amount to number for stats (approximate)
+      // in production, use BigInt or exact USD values
+      const volumeUSD = Number(quote.amountIn) / 10 ** 18 * quote.coingeckoReferencePriceTokenInUSD;
+      statsService.recordQuote(true, volumeUSD);
+
+      return res.json({ success: true, data: quote });
+
+    } catch (error) {
+      // 4. Track Failure
+      statsService.recordQuote(false);
+      throw error; // Pass to global error handler
+    }
   })
 );
 

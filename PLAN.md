@@ -639,6 +639,18 @@ const API_BASE_URL = process.env.VITE_API_URL ||
 - Real-time quote updates
 - Multi-DEX integration (Uniswap V3, Aerodrome, BaseSwap)
 
+### ✅ Phase 3A: Engine Expansion (2026-02-10)
+- **New Endpoints**: `/venues`, `/tokens`, `/stats` implemented.
+- **Central Registry**: `backend/src/config/registry.ts` created for metadata.
+- **Stats Service**: In-memory tracking for volume and requests.
+- **Clean Architecture**: Refactored `quote.ts` to use shared services.
+
+### ✅ Phase 3B: Frontend Integration (2026-02-10)
+- **Live Data**: Frontend now fetches `/venues` and `/stats`.
+- **New Components**: `StatsTicker` added to UI for real-time metrics.
+- **Hooks**: `usePlatformData` manages polling and state.
+- **Verified**: Frontend builds successfully with new integration.
+
 ---
 
 ## Research Summary (2026-02-09) 🔍
