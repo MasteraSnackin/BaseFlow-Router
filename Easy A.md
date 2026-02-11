@@ -1,3 +1,5 @@
+https://easya-ltd.notion.site/EasyA-Consensus-Hackathon-Hong-Kong-f7ebf8719d6d82b5bc3581c62463d426#e4ebf8719d6d825ea3000118719efe6f
+
 Offers a smart DEX aggregator to help Base traders maximize returns by routing trades through RobinPump.fun bonding curves for superior pricing.
 
 ## Full Description
