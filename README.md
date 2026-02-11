@@ -43,15 +43,15 @@
 ## Architecture Overview
 
 ```mermaid
-flowchart LR
-    User[User] -->|Connects Wallet| Frontend[React App]
-    Frontend -->|Requests Quote| API[Backend API]
-    API -->|Validates Price| CoinGecko[CoinGecko Service]
-    API -->|Queries On-Chain| Router[Router Contract]
-    Router -->|Checks Price| VenueA[Venue A (DEX)]
-    Router -->|Checks Price| VenueB[Venue B (DEX)]
-    Router -->|Checks Curve| Pump[RobinPump.fun]
-    Frontend -->|Executes Swap| Router
+graph LR
+    A[User] -->|Connects Wallet| B[React App]
+    B -->|Requests Quote| C[Backend API]
+    C -->|Validates Price| D[CoinGecko Service]
+    C -->|Queries On-Chain| E[Router Contract]
+    E -->|Checks Price| F[Venue A DEX]
+    E -->|Checks Price| G[Venue B DEX]
+    E -->|Checks Curve| H[RobinPump.fun]
+    B -->|Executes Swap| E
 ```
 
 The system consists of a React Frontend for user interaction, a Node.js Backend that aggregates quotes and validates prices against CoinGecko, and a set of Smart Contracts on Base Sepolia. The Router contract is the core on-chain component, responsible for querying connected venues (VenueA, VenueB, RobinPump.fun) and executing the trade through the most profitable path.
