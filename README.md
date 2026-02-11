@@ -52,19 +52,22 @@ flowchart LR
     Router -->|Checks Price| VenueB[Venue B (DEX)]
     Router -->|Checks Curve| Pump[RobinPump.fun]
     Frontend -->|Executes Swap| Router
-'''end
+```
 
 The system consists of a React Frontend for user interaction, a Node.js Backend that aggregates quotes and validates prices against CoinGecko, and a set of Smart Contracts on Base Sepolia. The Router contract is the core on-chain component, responsible for querying connected venues (VenueA, VenueB, RobinPump.fun) and executing the trade through the most profitable path.
 
-Installation
+## Installation
+
 Clone the repository:
 
-bash
+```bash
 git clone https://github.com/MasteraSnackin/BaseFlow-Router.git
 cd BaseFlow-Router
+```
+
 Install dependencies:
 
-bash
+```bash
 # Root dependencies
 npm install
 
@@ -76,51 +79,71 @@ npm install
 cd ../frontend
 npm install
 cd ..
+```
+
 Compile Smart Contracts:
 
-bash
+```bash
 npx hardhat compile
-Usage
+```
+
+## Usage
+
 You can run the full stack locally using the provided convenience scripts.
 
 Start the Backend API:
 
-bash
+```bash
 npm run backend
 # Runs on http://localhost:4000
+```
+
 Start the Frontend:
 
-bash
+```bash
 npm run frontend
 # Runs on http://localhost:5173
+```
+
 Deploy Contracts (Optional for Mock Mode): If you want to run against a real testnet, deploy the contracts first:
 
-bash
+```bash
 npx hardhat run scripts/deploy.js --network baseSepolia
-Configuration
+```
+
+## Configuration
+
 The project uses .env files for configuration.
 
 Backend (backend/.env):
 
-bash
+```bash
 PORT=4000
 BASE_SEPOLIA_RPC_URL=https://sepolia.base.org
 # Router contract address (use mock address for simulation)
 ROUTER_ADDRESS=0x1234567890123456789012345678901234567890
+```
+
 Root (.env) for deployment:
 
-bash
+```bash
 BASE_SEPOLIA_RPC_URL=https://sepolia.base.org
 PRIVATE_KEY=your_private_key_here
-API Reference
+```
+
+## API Reference
+
 The backend exposes a simple REST API for quoting.
 
-Get Quote
-text
+**Get Quote**
+
+```text
 POST /quote
+```
+
 Request Body:
 
-json
+```json
 {
   "chainId": 84532,
   "tokenIn": "0x...",
@@ -128,9 +151,11 @@ json
   "amountIn": "1000000000000000000",
   "slippageBps": 50
 }
+```
+
 Response:
 
-json
+```json
 {
   "smartVenue": "ROBINPUMP_FUN",
   "smartAmountOut": "1050000000000000000",
@@ -140,32 +165,33 @@ json
     "currentPrice": "0.00003"
   }
 }
-Tests
+```
+
+## Tests
+
 Run the smart contract test suite using Hardhat:
 
-bash
+```bash
 npx hardhat test
-Roadmap
-Integrate additional Base DEXs (Aerodrome, SushiSwap).
+```
 
-Add support for multi-hop routing paths.
+## Roadmap
 
-Implement MEV protection for executed trades.
+- Integrate additional Base DEXs (Aerodrome, SushiSwap).
+- Add support for multi-hop routing paths.
+- Implement MEV protection for executed trades.
+- Add portfolio tracking dashboard for user positions.
 
-Add portfolio tracking dashboard for user positions.
+## Contributing
 
-Contributing
 Contributions are welcome!
 
-Fork the repository.
+1. Fork the repository.
+2. Create a feature branch (`git checkout -b feature/amazing-feature`).
+3. Commit your changes (`git commit -m 'Add some amazing feature'`).
+4. Push to the branch (`git push origin feature/amazing-feature`).
+5. Open a Pull Request.
 
-Create a feature branch (git checkout -b feature/amazing-feature).
+## License
 
-Commit your changes (git commit -m 'Add some amazing feature').
-
-Push to the branch (git push origin feature/amazing-feature).
-
-Open a Pull Request.
-
-License
 Distributed under the ISC License. See LICENSE for more information.
