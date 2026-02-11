@@ -61,3 +61,5 @@ Describes the main contract’s responsibility accurately: it is a routing contr
 
 So, the name is meant to read as: a router that optimises flow of trades and liquidity on Base, with the emphasis on both the chain (Base) and the behaviour (routing order flow efficiently).
 
+https://easya-ltd.notion.site/EasyA-Consensus-Hackathon-Hong-Kong-f7ebf8719d6d82b5bc3581c62463d426#e4ebf8719d6d825ea3000118719efe6f
+
