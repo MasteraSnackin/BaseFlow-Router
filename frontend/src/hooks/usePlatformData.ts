@@ -1,10 +1,10 @@
 
 import { useState, useEffect } from 'react';
-import { getStats, getVenues, type PlatformStats, type Venue } from '../lib/api';
+import { getStats, getVenues, type PlatformStats, type VenueMetadata } from '../lib/api';
 
 export function usePlatformData() {
     const [stats, setStats] = useState<PlatformStats | null>(null);
-    const [venues, setVenues] = useState<Venue[]>([]);
+    const [venues, setVenues] = useState<VenueMetadata[]>([]);
     const [loading, setLoading] = useState(true);
 
     // Initial fetch

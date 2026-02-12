@@ -12,6 +12,15 @@ export interface RouterCalldata {
   value: string;
 }
 
+export type Venue = 'DEX_A' | 'DEX_B' | 'ROBINPUMP_FUN';
+
+export interface PumpFunInfo {
+  bondingProgress: number;
+  currentPrice: string;
+  hasGraduated: boolean;
+  estimatedMarketCap: string;
+}
+
 export interface QuoteResponse {
   success: boolean;
   data?: {
@@ -19,15 +28,16 @@ export interface QuoteResponse {
     tokenIn: string;
     tokenOut: string;
     amountIn: string;
-    baselineVenue: 'DEX_A' | 'DEX_B';
+    baselineVenue: Venue;
     baselineAmountOut: string;
-    smartVenue: 'DEX_A' | 'DEX_B';
+    smartVenue: Venue;
     smartAmountOut: string;
     improvementBps: number;
     coingeckoReferencePriceTokenInUSD: number;
     coingeckoReferencePriceTokenOutUSD: number;
     priceCheckStatus: 'OK' | 'DEVIATION_HIGH';
     routerCalldata: RouterCalldata;
+    pumpFunInfo?: PumpFunInfo;
   };
   error?: {
     code: string;
@@ -46,7 +56,7 @@ export async function getQuote(req: QuoteRequest): Promise<QuoteResponse> {
   return res.json();
 }
 
-export interface Venue {
+export interface VenueMetadata {
   id: string;
   name: string;
   description: string;
@@ -66,7 +76,7 @@ export interface PlatformStats {
   totalVolumeUSD: number;
 }
 
-export async function getVenues(): Promise<{ success: boolean; data: Venue[] }> {
+export async function getVenues(): Promise<{ success: boolean; data: VenueMetadata[] }> {
   const res = await fetch(`${API_BASE}/venues`);
   return res.json();
 }
