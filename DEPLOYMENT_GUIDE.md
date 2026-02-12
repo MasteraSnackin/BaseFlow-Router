@@ -1,4 +1,4 @@
-# 🚀 Deployment Guide - Base Flow Router
+# 🚀 Deployment Guide - BaseFlow Router
 
 This project is optimized for deployment on **Railway** (Backend) and **Vercel** (Frontend). 
 

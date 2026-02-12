@@ -201,7 +201,7 @@ function App() {
               <div>
                 <h1 className="text-4xl md:text-5xl font-bold mb-2 flex items-center gap-3">
                   <Zap className="w-10 h-10 text-base-400 animate-glow" />
-                  <span className="gradient-text">Base DeFi Router</span>
+                  <span className="gradient-text">BaseFlow Router</span>
                 </h1>
                 <p className="text-slate-400 text-lg">
                   Smart DEX aggregation + 🚀 <span className="text-pink-400 font-semibold">RobinPump.fun</span> bonding curves • Save up to 8% on every swap

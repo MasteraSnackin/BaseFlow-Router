@@ -1,8 +1,8 @@
-# System Architecture: Base DeFi Router
+# System Architecture: BaseFlow Router
 
 ## Overview
 
-The **Base DeFi Router** is a decentralized application (dApp) designed to aggregate liquidity across multiple decentralized exchanges (DEXs) on the Base network. Its primary goal is to provide traders with the optimal execution price for any given token swap by automatically comparing rates between traditional Automated Market Makers (AMMs) and the **RobinPump.fun** bonding curve.
+The **BaseFlow Router** is a decentralized application (dApp) designed to aggregate liquidity across multiple decentralized exchanges (DEXs) on the Base network. Its primary goal is to provide traders with the optimal execution price for any given token swap by automatically comparing rates between traditional Automated Market Makers (AMMs) and the **RobinPump.fun** bonding curve.
 
 The system bridges the gap between standard ERC-20 token trading and the unique pricing mechanics of bonding curves, offering a unified interface that abstracts the complexity of routing and price comparison. It is currently deployed on the Base Sepolia testnet, with architectural readiness for Base Mainnet.
 
