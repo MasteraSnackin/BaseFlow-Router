@@ -57,6 +57,9 @@ More diagrams and architecture are available in ARCHITECTURE.md: https://github.
 
 The system consists of a React Frontend for user interaction, a Node.js Backend that aggregates quotes and validates prices against CoinGecko, and a set of Smart Contracts on Base Sepolia. The Router contract is the core on-chain component, responsible for querying connected venues (VenueA, VenueB, RobinPump.fun) and executing the trade through the most profitable path.
 
+<img width="1078" height="851" alt="image" src="https://github.com/user-attachments/assets/e8afed17-a5e9-4381-8cdb-1a8d25673a59" />
+
+
 ## Installation
 
 Clone the repository:
